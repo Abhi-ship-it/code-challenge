@@ -4,8 +4,9 @@ class Company < ApplicationRecord
   #validations
   validates :name, :zip_code, presence: true
   validates :email, format: { with: /\b[A-Z0-9._%a-z\-]+@getmainstreet.\.com\z/,
-                    message: "must be a getmainstreet.com account" }, :allow_blank => true
+                              message: "must be a getmainstreet.com account" }, :allow_blank => true
 
+  before_save :set_city_state_from_zipcode, if: -> { self.zip_code_changed? || self.city.blank? || self.state.blank? }
 
   def self.destroy_the_record(company)
     result = {}
@@ -21,5 +22,10 @@ class Company < ApplicationRecord
     return result
   end
 
+  def set_city_state_from_zipcode
+    location_data = ZipCodes.identify(self.zip_code).presence || {}
+    self.city = location_data[:city]
+    self.state = location_data[:state_code]
+  end
 
 end
