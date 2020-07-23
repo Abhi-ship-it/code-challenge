@@ -30,7 +30,12 @@ class CompaniesController < ApplicationController
     else
       render :edit
     end
-  end  
+  end
+
+  def destroy
+    result = Company.destroy_the_record(@company)
+    redirect_to companies_path, notice: result[:message]
+  end
 
   private
 
